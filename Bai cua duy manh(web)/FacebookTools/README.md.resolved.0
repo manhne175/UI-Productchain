@@ -1,0 +1,41 @@
+# Hướng Dẫn Sử Dụng: Facebook Auto-Unfriend Tool
+
+## 1. Cài đặt Môi Trường
+Đảm bảo bạn đã cài đặt Python và các thư viện cần thiết:
+```bash
+pip install selenium webdriver-manager
+```
+
+## 2. Cấu Hình Đường Dẫn Profile (QUAN TRỌNG)
+Để script hoạt động mà không cần đăng nhập thủ công, bạn cần trỏ đúng đường dẫn đến Profile Chrome của mình.
+
+1.  Mở Google Chrome.
+2.  Gõ `chrome://version` vào thanh địa chỉ và nhấn Enter.
+3.  Tìm dòng **Profile Path** (Đường dẫn hồ sơ).
+    -   Ví dụ: `C:\Users\Admin\AppData\Local\Google\Chrome\User Data\Default`
+4.  Mở file [auto_unfriend.py](file:///C:/Users/ADMIN/.gemini/antigravity/brain/aaafa23a-610a-4087-aba8-140137902c45/FacebookTools/auto_unfriend.py) và sửa biến `PROFILE_PATH`:
+    -   Lấy phần đường dẫn **trước** chữ `\Default` (hoặc `\Profile 1`).
+    -   Ví dụ: `PROFILE_PATH = r"C:\Users\Admin\AppData\Local\Google\Chrome\User Data"`
+    -   Biến `PROFILE_DIRECTORY` để là `"Default"` (hoặc tên thư mục cuối cùng nếu khác).
+
+## 3. Thêm Danh Sách Cần Hủy Kết Bạn
+Hiện tại script sử dụng danh sách thủ công để đảm bảo an toàn. 
+Mở file [auto_unfriend.py](file:///C:/Users/ADMIN/.gemini/antigravity/brain/aaafa23a-610a-4087-aba8-140137902c45/FacebookTools/auto_unfriend.py), tìm hàm [get_inactive_friends](file:///C:/Users/ADMIN/.gemini/antigravity/brain/aaafa23a-610a-4087-aba8-140137902c45/FacebookTools/auto_unfriend.py#46-66) và thêm link profile vào list [inactive_friends](file:///C:/Users/ADMIN/.gemini/antigravity/brain/aaafa23a-610a-4087-aba8-140137902c45/FacebookTools/auto_unfriend.py#46-66):
+
+```python
+inactive_friends = [
+    "https://www.facebook.com/nguoi.dung.1",
+    "https://www.facebook.com/nguoi.dung.2",
+]
+```
+
+## 4. Chạy Script
+**Lưu ý:** Bạn cần ĐÓNG tất cả các cửa sổ Chrome đang mở profile đó trước khi chạy script.
+```bash
+python auto_unfriend.py
+```
+
+## 5. Cơ Chế An Toàn
+-   **Delay**: Script sẽ nghỉ ngẫu nhiên 15-45 giây giữa mỗi lần hủy kết bạn.
+-   **Cooldown**: Nếu chạy liên tục 10 phút, script sẽ tự động nghỉ 5 phút.
+-   **Giả lập**: Script tắt các cờ báo hiệu automation của Selenium để tránh bị Facebook phát hiện là bot.

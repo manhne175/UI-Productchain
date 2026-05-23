@@ -1,0 +1,89 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* Màu xanh nhạt */
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+header {
+    text-align: center;
+    border-bottom: 2px solid #0056b3; /* Xanh dương đậm */
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+header h1 {
+    color: #0056b3;
+    margin: 0;
+}
+
+/* Nút quay lại */
+.back-btn {
+    display: inline-block;
+    margin-bottom: 30px;
+    text-decoration: none;
+    background-color: #0056b3;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.back-btn:hover {
+    background-color: #003d80;
+}
+
+/* Phần hồ sơ diễn giả */
+.profile {
+    padding: 20px 0;
+}
+
+/* Hiệu ứng scroll-margin để khi nhảy link không bị che mất tiêu đề */
+.profile {
+    scroll-margin-top: 20px; 
+}
+
+h2 {
+    color: #333;
+    border-left: 5px solid #0056b3;
+    padding-left: 10px;
+}
+
+.content {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 15px;
+}
+
+.content img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #eee;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 20px 0;
+}
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    color: #777;
+    font-size: 14px;
+}

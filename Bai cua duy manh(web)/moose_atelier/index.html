@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>moose.atelier | Artistic Insect Specimens</title>
+    <meta name="description" content="Mini store selling high-quality artistic insect specimens from nature">
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-link"><img src="assets/logo.png" alt="MOOSE" class="logo-img"></a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#collection">Collection</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+            <div class="nav-icons">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search products..." class="search-input">
+                    <i class="fas fa-search" id="searchIcon"></i>
+                </div>
+                <div class="user-icon-container" id="userIcon">
+                    <i class="fas fa-user" id="userBtnIcon"></i>
+                </div>
+                <div class="cart-icon-container" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero" id="home">
+        <div class="hero-content">
+            <h2>Art from Nature</h2>
+            <p>Discover eternal beauty through exquisitely crafted insect specimens. Each specimen is a unique work of
+                art.</p>
+            <a href="#collection" class="btn btn-primary">Explore Collection</a>
+        </div>
+    </header>
+
+    <section class="collection" id="collection">
+        <div class="section-header">
+            <h2>Featured Products</h2>
+            <p>A selection of the most unique specimens from moose.atelier. Always available.</p>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <!-- Products will be injected by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Modal for Product Details -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <h3 id="modalTitle">Product Name</h3>
+                    <p class="modal-price" id="modalPrice">$0</p>
+                    <p class="modal-desc" id="modalDesc">Product description</p>
+                    <button class="btn btn-primary w-100" id="addToCartBtn">Add to Cart</button>
+                    <p class="success-msg" id="successMsg">Added to cart!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Login -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content login-content">
+            <span class="close-modal" id="closeLogin">&times;</span>
+            <div class="modal-body login-body">
+                <h2>Admin Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="Enter password">
+                    </div>
+                    <p class="error-msg" id="loginError">Invalid credentials</p>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Admin Panel -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content login-content" style="max-width: 550px;">
+            <span class="close-modal" id="closeAdmin">&times;</span>
+            <div class="modal-body login-body">
+                <h2 id="adminModalTitle">Add Product</h2>
+                <form id="addProductForm">
+                    <input type="hidden" id="editProdId" value="">
+                    <div class="form-group">
+                        <label for="prodName">Product Name</label>
+                        <input type="text" id="prodName" required placeholder="e.g. Atlas Moth">
+                    </div>
+                    <div class="form-group">
+                        <label for="prodPrice">Price (USD)</label>
+                        <input type="number" id="prodPrice" required step="0.01" placeholder="e.g. 50.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="prodImageFile">Product Image</label>
+                        <input type="file" id="prodImageFile" accept="image/*" class="file-input">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; display: none;" id="existingImageLabel">Leave blank to keep existing image</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="prodDesc">Description</label>
+                        <textarea id="prodDesc" required rows="3" style="font-size: 1rem; padding: 0.9rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-color); color: var(--text-main); font-family: inherit; outline: none; transition: var(--transition); width: 100%; resize: vertical;" placeholder="Detailed description..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem;">Add Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            <span class="close-cart" id="closeCart">&times;</span>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be rendered here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotalAmount">$0</span>
+            </div>
+            <button class="btn btn-primary w-100" id="checkoutBtn"
+                onclick="alert('Checkout feature is currently under development!')">Checkout</button>
+        </div>
+    </div>
+
+    <footer id="about">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>moose.atelier</h3>
+                <p>Preserving the beauty of nature through time. Each specimen is a unique work of art, meticulously
+                    crafted by hand.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#collection">Collection</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-section" id="contact">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/moose.atelier/"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/beowynaa"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 moose.atelier. Developed with ❤️ for nature enthusiasts.</p>
+        </div>
+    </footer>
+
+    <script src="script.js?v=20260523_0001"></script>
+</body>
+
+</html>

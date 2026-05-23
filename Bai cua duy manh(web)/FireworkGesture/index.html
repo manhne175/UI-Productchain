@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pháo Hoa Cử Chỉ Tay</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- MediaPipe dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="camera-container">
+            <video class="input_video"></video>
+            <canvas class="input_overlay"></canvas>
+        </div>
+        <canvas class="output_canvas"></canvas>
+        <div class="controls">
+            <h1>Giơ ngón tay để bắn pháo hoa!</h1>
+            <p>1-5 ngón: Tăng cường độ • Nắm tay: Dừng lại</p>
+            <p id="status">Đang tải...</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

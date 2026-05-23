@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>San Joaquin Valley Town Hall</title>
+    
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    
+    <link rel="stylesheet" href="style2.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+    <script>
+        $(document).bind("mobileinit", function(){
+            $.mobile.ajaxEnabled = false; 
+        });
+    </script>
+
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+
+    <div data-role="page" id="main-page">
+
+        <div data-role="header" style="overflow:hidden;">
+            <div style="text-align:center; padding: 10px;">
+                <h1>San Joaquin Valley Town Hall</h1>
+            </div>
+            
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#" class="ui-btn-active" data-icon="home">Home</a></li>
+                    <li><a href="#" data-icon="star">Speakers</a></li>
+                    <li><a href="#" data-icon="grid">News</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div role="main" class="ui-content">
+            
+            <div class="logo-container" style="text-align: center;">
+                <img src="avt_duym.jpg" alt="Logo" width="80"> 
+                <p class="sub-heading">Celebrating our <span class="highlight">75<sup>th</sup></span> Year</p>
+            </div>
+            <hr>
+
+            <section id="mission">
+                <h2>Our Mission</h2>
+                <p>San Joaquin Valley Town Hall is a non-profit organization...</p>
+                <blockquote>“Each year I give a ticket package...”</blockquote>
+            </section>
+
+            <section>
+                <h2>Our Ticket Packages</h2>
+                <ul data-role="listview" data-inset="true"> <li>Season Package: $95</li>
+                    <li>Patron Package: $200</li>
+                    <li>Single Speaker: $25</li>
+                </ul>
+            </section>
+
+            <div id="accordion">
+                <h3>What is jQuery?</h3>
+                <div><p>jQuery is a fast, small, and feature-rich JavaScript library...</p></div>
+                <h3>Why is jQuery becoming so popular?</h3>
+                <div><p>Because it makes things like HTML document traversal...</p></div>
+                <h3>Which is harder to learn: jQuery or JavaScript?</h3>
+                <div><p>JavaScript is the language, jQuery is a library...</p></div>
+            </div>
+
+            <div class="text-rotator-container">
+                <p class="static-line">Chào mừng bạn đến với</p>
+                <div class="dynamic-line-mask">
+                    <ul class="dynamic-text-list">
+                        <li><span>SAN JOAQUIN</span></li> 
+                        <li><span>TOWN HALL</span></li> 
+                    </ul>
+                </div>
+            </div>
+
+        </div> <div data-role="footer" style="text-align:center;">
+            <h4>&copy; 2015, San Joaquin Valley Town Hall</h4>
+            <div class="my-info">
+                <p><strong>Name: Truong Duy Manh</strong></p>
+                <img src="avt_duym.jpg" alt="My photo" class="my-photo" width="50">
+            </div>
+        </div>
+
+    </div> <script>
+        $(function() {
+            if($.fn.accordion) {
+                $( "#accordion" ).accordion({
+                    collapsible: true,
+                    active: false,
+                    heightStyle: "content" 
+                });
+            }
+        });
+    </script>
+    <script src="alert1.js"></script>
+</body>
+</html>

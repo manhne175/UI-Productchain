@@ -1,0 +1,101 @@
+/* Thiết lập font chữ chung (Arial/Sans-serif giống hình) */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 20px;
+    color: #000;
+    line-height: 1.4;
+    background-color: white;
+}
+
+/* --- HEADER --- */
+header {
+    display: flex; /* Xếp logo và chữ nằm ngang */
+    align-items: flex-start; /* Căn đỉnh trên */
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 80px; /* Kích thước ảnh bí ngô */
+    height: auto;
+    margin-right: 15px;
+}
+
+.header-text h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic;
+    color: #FF9900; /* Màu cam */
+    font-size: 32px;
+    margin: 0;
+    /* Tạo bóng đen cho chữ giống hình */
+    text-shadow: 2px 2px 2px #000; 
+    font-weight: bold;
+}
+
+.header-text h3 {
+    margin: 5px 0 0 0;
+    font-size: 16px;
+    color: #000;
+    font-weight: bold;
+}
+
+/* --- HEADINGS --- */
+h2 {
+    font-size: 20px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: #000;
+}
+
+h3 {
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* --- HIỆU ỨNG CHỮ W TO (DROP CAP) --- */
+.first-letter {
+    font-size: 36px; /* Chữ W to gấp đôi chữ thường */
+    font-weight: bold;
+    vertical-align: baseline; /* Căn chỉnh dòng */
+}
+
+/* --- NỘI DUNG VĂN BẢN --- */
+p {
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+strong {
+    font-weight: bold;
+}
+
+/* --- DANH SÁCH & LINK --- */
+ul {
+    list-style-type: disc; /* Dấu chấm tròn */
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+a {
+    color: #FF9900; /* Link màu cam giống hình */
+    text-decoration: underline; /* Có gạch chân */
+    font-weight: bold;
+}
+
+a:hover {
+    color: #cc7a00; /* Di chuột vào thì cam đậm hơn chút */
+}
+
+/* --- FOOTER --- */
+footer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: #000;
+    /* Trong hình mẫu, footer có vẻ căn trái thẳng hàng với nội dung */
+    text-align: center; 
+}
