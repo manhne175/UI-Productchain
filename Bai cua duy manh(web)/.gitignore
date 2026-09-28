@@ -1,0 +1,5 @@
+# Chỉ theo dõi và lưu trữ dự án SupplyChainTracker
+# Bỏ qua toàn bộ các thư mục và file khác trong máy
+/*
+!/SupplyChainTracker/
+!/.gitignore
