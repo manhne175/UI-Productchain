@@ -1,0 +1,335 @@
+/* ==========================================================================
+   STYLE CSS - HỆ THỐNG THEO DÕI CHUỖI CUNG ỨNG SẢN PHẨM (SUPPLY CHAIN TRACKER)
+   Giao diện dịu mắt, chống chói (Dark Slate Theme), tích hợp MetaMask & Blockchain
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+/* ================= THEME MẶC ĐỊNH: DỊU MẮT (DARK SLATE) ================= */
+:root {
+  --bg-page: #0B1120;
+  --bg-card: #151F32;
+  --bg-card-subtle: #0F172A;
+  --bg-input: #0B1120;
+  --border-color: #24324D;
+  --border-subtle: #1E293B;
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-faint: #64748B;
+  --table-hover: #1A263D;
+  --primary-blue: #3B82F6;
+  --primary-hover: #2563EB;
+}
+
+/* THEME SÁNG (LIGHT MODE) */
+body.theme-light {
+  --bg-page: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-card-subtle: #F8FAFC;
+  --bg-input: #FFFFFF;
+  --border-color: #CBD5E1;
+  --border-subtle: #E2E8F0;
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-faint: #64748B;
+  --table-hover: #F8FAFC;
+  --primary-blue: #2563EB;
+  --primary-hover: #1D4ED8;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.mono-font {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Thẻ Card */
+.app-card {
+  background-color: var(--bg-card);
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+.app-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* Header & Navbar */
+.app-header {
+  background-color: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.theme-light .app-header {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Tab Điều Hướng */
+.nav-tab-btn {
+  position: relative;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-main);
+}
+
+.nav-tab-btn.active {
+  color: #38BDF8;
+  border-bottom: 2px solid #38BDF8;
+  background-color: rgba(56, 189, 248, 0.08);
+}
+
+/* NÚT VÍ METAMASK ĐẶC TRƯNG */
+.btn-metamask {
+  background: linear-gradient(135deg, #F6851B 0%, #E2761B 100%);
+  color: #FFFFFF;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(246, 133, 27, 0.35);
+}
+
+.btn-metamask:hover {
+  background: linear-gradient(135deg, #E2761B 0%, #CD6116 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(246, 133, 27, 0.45);
+}
+
+/* Khối Ví MetaMask khi đã kết nối */
+.wallet-badge-connected {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.theme-light .wallet-badge-connected {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+/* Thẻ Blockchain Proof */
+.blockchain-proof-card {
+  background: linear-gradient(145deg, rgba(21, 31, 50, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.blockchain-proof-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Thanh Tiến Trình 4 Bước (Stepper Timeline) */
+.step-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.step-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  z-index: 2;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.step-completed {
+  background-color: #10B981;
+  color: #FFFFFF;
+  border: 3px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+}
+
+.step-active {
+  background-color: #2563EB;
+  color: #FFFFFF;
+  border: 4px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.45);
+  animation: pulseBlue 2s infinite;
+}
+
+.step-pending {
+  background-color: var(--bg-card-subtle);
+  color: var(--text-faint);
+  border: 2px solid var(--border-color);
+}
+
+.step-line {
+  flex: 1;
+  height: 4px;
+  background-color: var(--border-color);
+  margin: 0 10px;
+  z-index: 1;
+  border-radius: 2px;
+}
+
+.step-line.completed {
+  background-color: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes pulseBlue {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.15);
+  }
+}
+
+/* Bản Đồ Leaflet Map Container */
+#mapLộTrình {
+  width: 100%;
+  height: 390px;
+  border-radius: 12px;
+  z-index: 10;
+}
+
+.leaflet-container {
+  background-color: #0F172A !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #151F32 !important;
+  color: #F1F5F9 !important;
+  border: 1px solid #334155 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-tip {
+  background: #151F32 !important;
+}
+
+/* Bộ chọn Layer bản đồ (Đường phố / Vệ tinh) */
+.leaflet-control-layers {
+  background: #151F32 !important;
+  color: #F1F5F9 !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+}
+
+.leaflet-control-layers-toggle {
+  background-color: #1E293B !important;
+  border-radius: 6px !important;
+}
+
+.theme-light .leaflet-control-layers {
+  background: #FFFFFF !important;
+  color: #1E293B !important;
+  border: 1px solid #CBD5E1 !important;
+}
+
+.theme-light .leaflet-control-layers-toggle {
+  background-color: #F1F5F9 !important;
+}
+
+.custom-map-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+/* Các Ô Nhập Liệu (Inputs) */
+.form-input-custom {
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.form-input-custom:focus {
+  outline: none;
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* Tem Nhãn In Ấn (Printable Product Label & Certificate) */
+.label-stamp {
+  border: 2px dashed #475569;
+  padding: 18px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #0F172A !important;
+}
+
+.cert-seal {
+  width: 72px;
+  height: 72px;
+  border: 3px double #2563EB;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #2563EB;
+  text-transform: uppercase;
+  transform: rotate(-12deg);
+}
+
+/* Tối Ưu Cho Máy In (Print Stylesheet) */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  header, footer, nav, .no-print, button, .modal-backdrop {
+    display: none !important;
+  }
+
+  .print-area {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+  }
+}

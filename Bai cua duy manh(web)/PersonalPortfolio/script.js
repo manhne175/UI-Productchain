@@ -1,10 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Typing Effect
     const typingText = document.querySelector('.typing-text');
-    const words = ['20 Tuổi', 'Quê quán: Quảng bình', 'Nơi ở hiện tại: Hà Nội'];
+    const birthDate = '2005-07-01'; // Đổi thành ngày sinh của bạn: YYYY-MM-DD
+
+    function getAgeFromBirthDate(dateString) {
+        const today = new Date();
+        const birth = new Date(dateString);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        const dayDiff = today.getDate() - birth.getDate();
+
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+
+        return age;
+    }
+
+    const age = getAgeFromBirthDate(birthDate);
+    const words = [`${age} Tuổi`, 'Quê quán: Quảng Trị', 'Nơi ở hiện tại: Hà Nội'];
     let wordIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
+
+    // Thay đổi tốc độ ở đây:
+    const typingSpeed = 60;      // tốc độ gõ chữ
+    const deletingSpeed = 60;     // tốc độ xóa chữ
+    const pauseAfterTyping = 1000; // dừng 1 giây sau khi xong một cụm
+    const pauseAfterDeleting = 200; // dừng 0.2 giây sau khi xóa xong
+
+    // Mở tất cả liên kết trong tab mới
+    document.querySelectorAll('a').forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+    });
 
     function type() {
         const currentWord = words[wordIndex];
@@ -19,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isDeleting && charIndex === currentWord.length) {
             isDeleting = true;
-            setTimeout(type, 1000); // Wait before deleting
+            setTimeout(type, pauseAfterTyping);
         } else if (isDeleting && charIndex === 0) {
             isDeleting = false;
             wordIndex = (wordIndex + 1) % words.length;
-            setTimeout(type, 200);
+            setTimeout(type, pauseAfterDeleting);
         } else {
-            setTimeout(type, isDeleting ? 100 : 200);
+            setTimeout(type, isDeleting ? deletingSpeed : typingSpeed);
         }
     }
 

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supply Chain Tracking System - Đồ Án Quản Lý Chuỗi Cung Ứng & Blockchain</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+  <!-- ====================================================================
+       1. THANH TIÊU ĐỀ & ĐIỀU HƯỚNG CHÍNH (HEADER & METAMASK WALLET)
+       ==================================================================== -->
+  <header class="app-header sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Hàng trên: Brand & Kết nối Ví MetaMask -->
+      <div class="h-16 flex items-center justify-between gap-3">
+        
+        <!-- Logo thương hiệu -->
+        <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="chuyenTab('tong-quan')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-sky-500 to-indigo-600 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-blue-500/25">
+            <i class="fa-solid fa-cubes-stacked"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-extrabold tracking-tight brand-font">
+                SUPPLY CHAIN <span class="text-sky-400">TRACKER</span>
+              </h1>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase flex items-center gap-1">
+                <i class="fa-brands fa-ethereum text-indigo-400"></i> Web3 Blockchain
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 hidden sm:block">Hệ Thống Theo Dõi Chuỗi Cung Ứng & Ví MetaMask</p>
+          </div>
+        </div>
+
+        <!-- Ô tra cứu nhanh trên Header -->
+        <div class="flex-1 max-w-sm hidden lg:block">
+          <div class="relative flex items-center">
+            <input 
+              type="text" 
+              id="inputHeaderSearch" 
+              placeholder="Tra cứu mã (VD: SP001, SP002)..." 
+              class="form-input-custom w-full text-xs pl-8 pr-20 py-1.5 rounded-xl placeholder-slate-400"
+            >
+            <i class="fa-solid fa-magnifying-glass absolute left-2.5 text-slate-400 text-xs"></i>
+            <button id="btnHeaderSearch" class="absolute right-1 top-1 bottom-1 px-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition">
+              Tra Cứu
+            </button>
+          </div>
+        </div>
+
+        <!-- CÔNG CỤ: VÍ METAMASK & THEME SWITCHER -->
+        <div class="flex items-center gap-2">
+          
+          <!-- Nút Kết nối Ví MetaMask (Khi chưa kết nối) -->
+          <button id="btnConnectMetaMask" onclick="ketNoiMetaMask()" class="btn-metamask px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-2 shadow-md">
+            <svg class="w-4 h-4" viewBox="0 0 318.6 318.6" fill="currentColor">
+              <path d="M274.1 35.5l-99.5 73.9L194 64.9l80.1-29.4zM44.5 35.5l98.9 74.3-18.9-45.3L44.5 35.5z"/>
+              <path d="M238.3 206.8l-30.8 45.4 67.4 18.6 19.3-63.5-55.9-.5zM80.3 206.8l55.8-.5 19.4 64-31-45.6-44.2-17.9z"/>
+              <path d="M159.3 125.7l-47.5 39.5 47.5 22.8 47.5-22.8-47.5-39.5z"/>
+            </svg>
+            <span>Kết Nối MetaMask</span>
+          </button>
+
+          <!-- Thẻ Hiển Thị Ví MetaMask (Khi đã kết nối) -->
+          <div id="walletConnectedBadge" class="hidden wallet-badge-connected text-xs">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="walletNetworkText" class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px] font-semibold border border-indigo-500/30">
+                Sepolia
+              </span>
+            </div>
+            <div class="border-l border-slate-700 pl-2">
+              <span id="walletAddressText" class="mono-font font-bold text-sky-400">0x71C...3a9F</span>
+              <span id="walletBalanceText" class="text-slate-400 text-[10px] ml-1 hidden sm:inline">0.45 ETH</span>
+            </div>
+            <button onclick="ngatKetNoiMetaMask()" class="text-slate-400 hover:text-rose-400 ml-1 p-0.5" title="Ngắt kết nối ví">
+              <i class="fa-solid fa-power-off text-xs"></i>
+            </button>
+          </div>
+
+          <!-- Nút chuyển đổi Sáng/Tối -->
+          <button id="btnDoiTheme" onclick="chuyenDoiTheme()" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition" title="Bật/Tắt chế độ tối">
+            <i class="fa-solid fa-moon text-amber-300" id="iconTheme"></i>
+          </button>
+
+          <!-- Nút thêm lô hàng -->
+          <button onclick="moModalThemMoi()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Thêm Lô Hàng</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Hàng dưới: Tab Điều Hướng -->
+      <div class="flex items-center gap-1 sm:gap-2 overflow-x-auto border-t border-slate-800/60 py-1 text-xs sm:text-sm">
+        <button data-tab="tong-quan" class="nav-tab-btn active px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-chart-pie"></i> Tổng Quan & Bản Đồ
+        </button>
+        <button data-tab="tra-cuu" class="nav-tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-route"></i> Tra Cứu & Bằng Chứng Blockchain
+        </button>
+        <button data-tab="quan-ly" class="nav-tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-list-check"></i> Quản Lý Danh Sách Lô Hàng
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- NỘI DUNG CHÍNH (CONTAINER) -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- ====================================================================
+         PHÂN HỆ 1: TỔNG QUAN, BẢN ĐỒ VÀ BIỂU ĐỒ (TAB TỔNG QUAN)
+         ==================================================================== -->
+    <div id="tabTongQuan" class="space-y-6">
+      
+      <!-- 4 THẺ THỐNG KÊ (KPIs) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="app-card p-4">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wider">Tổng Lô Hàng</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-sky-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-cubes"></i>
+            </div>
+          </div>
+          <div class="text-2xl font-bold brand-font" id="thongKeTong">0</div>
+          <div class="text-[11px] text-slate-400 mt-1">Đã cấp Block định danh</div>
+        </div>
+
+        <div class="app-card p-4">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wider">Đang Vận Chuyển</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-sky-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-truck-moving"></i>
+            </div>
+          </div>
+          <div class="text-2xl font-bold text-sky-400 brand-font" id="thongKeDangGiao">0</div>
+          <div class="text-[11px] text-sky-400/80 mt-1 font-medium">Chặng 3/4 trên đường vận tải</div>
+        </div>
+
+        <div class="app-card p-4">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wider">Đã Giao Thành Công</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+          <div class="text-2xl font-bold text-emerald-400 brand-font" id="thongKeHoanThanh">0</div>
+          <div class="text-[11px] text-emerald-400/80 mt-1 font-medium">Chặng 4/4 đã bàn giao</div>
+        </div>
+
+        <div class="app-card p-4">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wider">Đang Chuẩn Bị</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-box"></i>
+            </div>
+          </div>
+          <div class="text-2xl font-bold text-amber-400 brand-font" id="thongKeChoXuLy">0</div>
+          <div class="text-[11px] text-slate-400 mt-1">Chặng 1 và Chặng 2 tại xưởng</div>
+        </div>
+      </div>
+
+      <!-- BẢN ĐỒ LỘ TRÌNH VẬN CHUYỂN TƯƠNG TÁC (LEAFLET MAP) -->
+      <div class="app-card p-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold brand-font">Bản Đồ Hành Trình Chuỗi Cung Ứng</h2>
+              <span class="px-2 py-0.5 rounded text-[10px] bg-blue-500/20 text-sky-300 font-semibold border border-blue-500/30 font-mono">GPS OpenStreetMap</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Đang xem lộ trình lô hàng: <span id="mapTenLoHang" class="font-bold text-sky-400">SP001 - Cà Phê Robusta</span>
+            </p>
+          </div>
+
+          <!-- Nút chọn nhanh lô hàng để xem bản đồ -->
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <span class="text-slate-400 mr-1">Xem lô:</span>
+            <button onclick="chonSanPham('SP001')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700">SP001 (Đắk Lắk ➔ Hà Nội)</button>
+            <button onclick="chonSanPham('SP002')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700">SP002 (Ba Vì ➔ Hà Nội)</button>
+            <button onclick="chonSanPham('SP003')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700">SP003 (Sóc Trăng ➔ TP.HCM)</button>
+            <button onclick="chonSanPham('SP005')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700">SP005 (Kon Tum ➔ Hà Nội)</button>
+          </div>
+        </div>
+
+        <!-- Khung bản đồ -->
+        <div id="mapLộTrình" class="shadow-inner border border-slate-700/60 overflow-hidden"></div>
+
+        <!-- Chú giải bản đồ -->
+        <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Nơi xuất phát (Farm/Xưởng)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Đang di chuyển (In-transit)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span> Điểm đích (Kho/Siêu thị)</span>
+          </div>
+          <button onclick="chuyenTab('tra-cuu')" class="text-sky-400 font-semibold hover:underline">
+            Xem bằng chứng Blockchain <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- HAI BIỂU ĐỒ PHÂN TÍCH (CHART.JS) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Biểu đồ 1: Cơ cấu ngành hàng -->
+        <div class="app-card p-5 flex flex-col">
+          <div class="mb-3">
+            <h3 class="text-sm font-bold brand-font">Phân Bổ Lô Hàng Theo Ngành Hàng</h3>
+            <p class="text-xs text-slate-400">Cơ cấu danh mục sản phẩm đang vận hành</p>
+          </div>
+          <div class="h-64 flex-1 flex items-center justify-center">
+            <canvas id="chartNganhHang"></canvas>
+          </div>
+        </div>
+
+        <!-- Biểu đồ 2: Hiệu suất giao hàng đúng hẹn -->
+        <div class="app-card p-5 flex flex-col">
+          <div class="mb-3">
+            <h3 class="text-sm font-bold brand-font">Hiệu Suất Giao Hàng Đúng Hạn (5 Tháng)</h3>
+            <p class="text-xs text-slate-400">Tỷ lệ đơn hàng giao thành công đúng cam kết SLA</p>
+          </div>
+          <div class="h-64 flex-1 flex items-center justify-center">
+            <canvas id="chartHieuSuat"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ====================================================================
+         PHÂN HỆ 2: TRA CỨU CHI TIẾT & BẰNG CHỨNG BLOCKCHAIN (TAB TRA CỨU)
+         ==================================================================== -->
+    <div id="tabTraCuu" class="hidden space-y-6">
+      
+      <!-- Hàng chọn nhanh sản phẩm -->
+      <div class="flex items-center justify-between gap-3 app-card p-3 rounded-xl">
+        <div class="flex items-center gap-2 overflow-x-auto text-xs py-1">
+          <span class="text-slate-400 font-medium shrink-0">Chọn sản phẩm mẫu:</span>
+          <button onclick="chonSanPham('SP001')" class="px-2.5 py-1 rounded-lg bg-blue-500/20 text-sky-300 font-semibold border border-blue-500/30 shrink-0">SP001 - Cà Phê Tây Nguyên</button>
+          <button onclick="chonSanPham('SP002')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 shrink-0">SP002 - Sữa Ba Vì</button>
+          <button onclick="chonSanPham('SP003')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 shrink-0">SP003 - Gạo ST25</button>
+          <button onclick="chonSanPham('SP004')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 shrink-0">SP004 - Vải Thiều</button>
+          <button onclick="chonSanPham('SP005')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 shrink-0">SP005 - Sâm Ngọc Linh</button>
+        </div>
+        <button onclick="chuyenTab('quan-ly')" class="text-xs text-sky-400 hover:underline shrink-0 hidden sm:block">
+          Xem danh sách đầy đủ <i class="fa-solid fa-list ml-1"></i>
+        </button>
+      </div>
+
+      <!-- KHỐI 1: THÔNG TIN SẢN PHẨM (PASSPORT) -->
+      <div class="app-card p-6 border-l-4 border-l-blue-500">
+        <div class="flex flex-col lg:flex-row items-start justify-between gap-6">
+          
+          <div class="space-y-4 flex-1">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span id="passportMa" class="mono-font text-base font-bold px-3 py-1 bg-blue-600 text-white rounded-lg shadow-sm">
+                SP001
+              </span>
+              <span id="passportLoai" class="text-xs font-semibold px-2.5 py-1 bg-slate-800 text-slate-200 rounded-md border border-slate-700">
+                Nông sản
+              </span>
+              <span id="passportTrangThaiBadge" class="text-xs px-3 py-1 rounded-full font-bold bg-blue-500/20 text-sky-300 border border-blue-500/30">
+                Chặng 3/4: Đang Vận Chuyển
+              </span>
+            </div>
+
+            <h2 id="passportTen" class="text-2xl font-bold brand-font">
+              Cà Phê Robusta Đặc Sản Tây Nguyên
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs pt-1">
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Nơi Sản Xuất / Trang Trại:</span>
+                <span id="passportNhaSX" class="font-semibold text-slate-200">Buôn Ma Thuột, Đắk Lắk</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Nơi Giao Đến / Kho Đích:</span>
+                <span id="passportNoiGiao" class="font-semibold text-slate-200">Kho Tổng VinMart Hà Nội</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Ngày Sản Xuất:</span>
+                <span id="passportNgaySX" class="font-semibold text-slate-200">15/09/2026</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Hạn Sử Dụng:</span>
+                <span id="passportHSD" class="font-semibold text-slate-200">15/09/2027</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Số Lượng / Quy Cách:</span>
+                <span id="passportSoLuong" class="font-semibold text-slate-200">500 kg (Bao 50kg)</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Tiêu Chuẩn Chất Lượng:</span>
+                <span id="passportTieuChuan" class="font-semibold text-emerald-400">VietGAP, 4C Organic</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Phương Tiện Vận Tải:</span>
+                <span id="passportPhuongTien" class="font-semibold text-slate-200">Xe tải lạnh (29C-882.11)</span>
+              </div>
+              <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block mb-0.5">Kiểm Định Viên:</span>
+                <span id="passportKiemDinh" class="font-semibold text-sky-400">Trần Hoàng Nam (KCS)</span>
+              </div>
+            </div>
+
+            <!-- Các nút hành động nghiệp vụ -->
+            <div class="flex flex-wrap items-center gap-2 pt-2">
+              <button onclick="moModalTemNhan()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition flex items-center gap-1.5 border border-slate-700 shadow-xs">
+                <i class="fa-solid fa-qrcode text-sky-400"></i> In Tem Nhãn Sản Phẩm
+              </button>
+              <button onclick="moModalChungNhan()" class="px-3.5 py-2 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs">
+                <i class="fa-solid fa-certificate"></i> Xem Phiếu Chứng Nhận Xuất Xứ
+              </button>
+              <button onclick="moModalThemNhatKy()" class="px-3.5 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-sky-300 border border-blue-500/40 text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-clipboard-check"></i> Cập Nhật Nhật Ký Chặng
+              </button>
+            </div>
+          </div>
+
+          <!-- Khối Tem QR bên phải -->
+          <div class="w-full lg:w-48 shrink-0 bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
+            <span class="text-xs font-bold text-slate-300 mb-2">TEM TRUY XUẤT QR</span>
+            <div class="bg-white p-2 rounded-lg border border-slate-700 shadow-xs mb-2">
+              <canvas id="passportQrCanvas" width="120" height="120"></canvas>
+            </div>
+            <span class="text-[11px] text-slate-400 font-mono">Quét để tra cứu</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- KHỐI 2: BẰNG CHỨNG BẤT BIẾN BLOCKCHAIN & VÍ METAMASK (MỚI) -->
+      <div class="blockchain-proof-card app-card p-6 rounded-2xl">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
+                <i class="fa-brands fa-ethereum"></i>
+              </div>
+              <h3 class="text-base font-bold text-white brand-font">Bằng Chứng Bất Biến Chuỗi Khối (Blockchain Provenance Proof)</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Dữ liệu nguồn gốc và nhật ký chặng được bảo vệ bằng mật mã học và hợp đồng thông minh</p>
+          </div>
+          
+          <button onclick="moModalBlockchainExplorer(sanPhamDangChon.id)" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+            <i class="fa-solid fa-magnifying-glass-chart"></i> Soi Khối Trên Explorer
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs mono-font">
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span class="text-slate-400 block font-sans mb-1 text-[11px]">Hợp Đồng Thông Minh (Smart Contract):</span>
+            <span id="proofContract" class="text-sky-300 font-semibold break-all">0x892aF03Bf75B6e21821C7aC09DbD4E12e95a7F92</span>
+          </div>
+
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span class="text-slate-400 block font-sans mb-1 text-[11px]">Số Hiệu Khối (Block Height):</span>
+            <span id="proofBlock" class="text-emerald-400 font-bold text-sm">#5892140</span>
+            <span class="text-[10px] text-slate-500 font-sans block mt-0.5">Đã xác nhận (128+ confirmations)</span>
+          </div>
+
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span class="text-slate-400 block font-sans mb-1 text-[11px]">Ví Ký Số Kiểm Định (Inspector Wallet):</span>
+            <span id="proofSigner" class="text-indigo-300 font-semibold break-all">0x71C8494f1c93a02847a9821cbde1093284a19bce</span>
+          </div>
+
+          <div class="sm:col-span-2 lg:col-span-3 bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between text-slate-400 font-sans mb-1 text-[11px]">
+              <span>Mã Băm Giao Dịch Gốc (Genesis Transaction Hash):</span>
+              <span id="proofTime" class="text-slate-500 font-mono text-[10px]">15/09/2026 08:32:15</span>
+            </div>
+            <div id="proofTxHash" class="text-sky-400 font-bold text-xs break-all">
+              0x7f9a8d7c6b5e4f3a2b1c0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KHỐI 3: TIẾN TRÌNH STEPPER VÀ CÁC BIÊN BẢN CHẶNG -->
+      <div class="app-card p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <h3 class="text-base font-bold brand-font">Nhật Ký Hành Trình Vòng Đời Lô Hàng</h3>
+            <p class="text-xs text-slate-400">Từng chặng được ghi nhận địa điểm, thời gian và biên bản kiểm định</p>
+          </div>
+          <button onclick="chuyenTrangThaiTiepTheo(sanPhamDangChon.id)" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">
+            <i class="fa-solid fa-forward-step mr-1"></i> Chuyển Sang Chặng Kế Tiếp
+          </button>
+        </div>
+
+        <div id="stepperContainer">
+          <!-- Render tự động bởi app.js -->
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ====================================================================
+         PHÂN HỆ 3: QUẢN LÝ DANH SÁCH LÔ HÀNG (TAB QUẢN LÝ CRUD)
+         ==================================================================== -->
+    <div id="tabQuanLy" class="hidden space-y-4">
+      
+      <!-- Thanh công cụ lọc & tìm kiếm -->
+      <div class="app-card p-4">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          
+          <div class="flex flex-wrap items-center gap-2 flex-1">
+            <!-- Ô tìm kiếm -->
+            <div class="relative min-w-[220px]">
+              <input 
+                type="text" 
+                id="inputTimKiemBang" 
+                placeholder="Tìm tên hàng, mã lô..." 
+                class="form-input-custom text-xs pl-8 pr-3 py-2 rounded-lg w-full placeholder-slate-400"
+              >
+              <i class="fa-solid fa-filter absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+            </div>
+
+            <!-- Lọc ngành -->
+            <select id="selectLocNganh" class="form-input-custom text-xs py-2 px-3 rounded-lg cursor-pointer">
+              <option value="all">Tất cả ngành hàng</option>
+              <option value="Nông sản">Nông sản</option>
+              <option value="Thực phẩm">Thực phẩm</option>
+              <option value="Lương thực">Lương thực</option>
+              <option value="Đặc sản">Đặc sản</option>
+              <option value="Dược liệu">Dược liệu</option>
+            </select>
+
+            <!-- Lọc trạng thái -->
+            <select id="selectLocTrangThai" class="form-input-custom text-xs py-2 px-3 rounded-lg cursor-pointer">
+              <option value="all">Tất cả trạng thái</option>
+              <option value="san_xuat">Chặng 1: Sản xuất</option>
+              <option value="dong_goi">Chặng 2: Đóng gói</option>
+              <option value="dang_giao">Chặng 3: Đang vận chuyển</option>
+              <option value="hoan_thanh">Chặng 4: Đã hoàn thành</option>
+            </select>
+          </div>
+
+          <!-- Nút xuất Excel & Thêm mới -->
+          <div class="flex items-center gap-2">
+            <button onclick="xuatFileExcel()" class="px-3.5 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-file-excel"></i> Xuất Excel (CSV)
+            </button>
+            <button onclick="moModalThemMoi()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-blue-600/30">
+              <i class="fa-solid fa-plus"></i> Thêm Lô Hàng Mới
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bảng dữ liệu quản lý -->
+      <div class="app-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-900/60 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800 text-[11px]">
+                <th class="py-3.5 px-4">Mã Lô</th>
+                <th class="py-3.5 px-4">Tên Sản Phẩm</th>
+                <th class="py-3.5 px-4">Hành Trình (Nơi SX ➔ Nơi Nhận)</th>
+                <th class="py-3.5 px-4">Thời Gian</th>
+                <th class="py-3.5 px-4">Tiến Độ Chặng</th>
+                <th class="py-3.5 px-4 text-right">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="tableShipmentsBody" class="divide-y divide-slate-800/60">
+              <!-- Render tự động bởi app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL: TRÌNH SOI KHỐI BLOCKCHAIN EXPLORER (ETHERSCAN SIMULATOR)
+       ==================================================================== -->
+  <div id="modalBlockchainExplorer" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs overflow-y-auto">
+    <div class="app-card w-full max-w-2xl p-6 rounded-2xl border border-indigo-500/40 shadow-2xl relative my-6">
+      
+      <!-- Header Explorer -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-base">
+            <i class="fa-brands fa-ethereum"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white brand-font flex items-center gap-2">
+              Blockchain Explorer <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">Sepolia Testnet</span>
+            </h3>
+            <p class="text-[11px] text-slate-400">Chi tiết giao dịch xác thực nguồn gốc trên mạng lưới chuỗi khối</p>
+          </div>
+        </div>
+        <button onclick="dongModal('modalBlockchainExplorer')" class="text-slate-400 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Transaction Details View -->
+      <div class="space-y-3 text-xs mono-font">
+        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">Transaction Hash:</span>
+            <span id="expTxHash" class="text-sky-400 font-bold text-[11px] break-all">0x7f9a8d7c6b5e4f3a2b1c...</span>
+          </div>
+
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">Trạng Thái (Status):</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-sans font-bold text-xs border border-emerald-500/30">
+              <i class="fa-solid fa-circle-check text-xs"></i> <span id="expStatus">SUCCESS (Confirmed)</span>
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">Block Height:</span>
+            <span id="expBlockNum" class="text-emerald-400 font-bold">#5892140</span>
+          </div>
+
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">Thời Điểm Khai Thác:</span>
+            <span id="expTimestamp" class="text-slate-300 font-sans">15/09/2026 08:32:15</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">Smart Contract Lô Hàng:</span>
+            <span id="expContract" class="text-indigo-300 text-[11px] break-all">0x892aF03Bf75B6e21821C7aC09DbD4E12e95a7F92</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">From (Nhà Sản Xuất):</span>
+            <span id="expFrom" class="text-slate-300 text-[11px] break-all">0x8A14bB8eC0d19B53A294697C82390a1829Bca901</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-slate-800/80">
+            <span class="text-slate-400 font-sans">Ví Ký Duyệt Kiểm Định:</span>
+            <span id="expSigner" class="text-sky-300 text-[11px] break-all">0x71C8494f1c93a02847a9821cbde1093284a19bce</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 font-sans">Gas Used:</span>
+            <span id="expGas" class="text-slate-300">85,420 Gwei</span>
+          </div>
+
+        </div>
+
+        <!-- Input Data Payload Decode -->
+        <div>
+          <span class="text-slate-400 font-sans block mb-1 text-[11px] font-semibold">Dữ Liệu Đã Băm & Khóa Bất Biến Trong Khối (Decoded Payload):</span>
+          <pre id="expPayload" class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] text-emerald-400 overflow-x-auto leading-relaxed max-h-40"></pre>
+        </div>
+      </div>
+
+      <div class="pt-4 mt-3 border-t border-slate-800 flex justify-end">
+        <button onclick="dongModal('modalBlockchainExplorer')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">
+          Đóng Explorer
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 1: THÊM LÔ HÀNG MỚI (TÍCH HỢP KÝ SỐ VÍ METAMASK)
+       ==================================================================== -->
+  <div id="modalThemMoi" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+    <div class="app-card w-full max-w-xl p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="text-base font-bold flex items-center gap-2 brand-font">
+          <i class="fa-solid fa-circle-plus text-sky-400"></i> Khởi Tạo Lô Hàng & Ký Số Blockchain
+        </h3>
+        <button onclick="dongModal('modalThemMoi')" class="text-slate-400 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formThemMoi" class="space-y-3.5 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Mã Lô Hàng*</label>
+            <input type="text" id="addMa" required placeholder="VD: SP006" class="form-input-custom w-full p-2.5 rounded-lg uppercase font-mono font-bold">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Ngành Hàng*</label>
+            <select id="addLoai" class="form-input-custom w-full p-2.5 rounded-lg">
+              <option value="Nông sản">Nông sản</option>
+              <option value="Thực phẩm">Thực phẩm</option>
+              <option value="Lương thực">Lương thực</option>
+              <option value="Đặc sản">Đặc sản</option>
+              <option value="Dược liệu">Dược liệu</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên Sản Phẩm*</label>
+          <input type="text" id="addTen" required placeholder="VD: Hạt Điều Rang Muối Bình Phước" class="form-input-custom w-full p-2.5 rounded-lg font-medium">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Nơi Sản Xuất / Trang Trại*</label>
+            <input type="text" id="addNhaSX" required placeholder="VD: Bù Đăng, Bình Phước" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Nơi Giao Đến / Kho Đích*</label>
+            <input type="text" id="addNoiGiao" required placeholder="VD: Kho Metro An Phú, TP.HCM" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Ngày Sản Xuất</label>
+            <input type="date" id="addNgaySX" class="form-input-custom w-full p-2 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Hạn Sử Dụng</label>
+            <input type="date" id="addHanDung" class="form-input-custom w-full p-2 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Số Lượng</label>
+            <input type="text" id="addSoLuong" placeholder="VD: 500 hộp" class="form-input-custom w-full p-2 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Tiêu Chuẩn Kiểm Định</label>
+            <input type="text" id="addTieuChuan" placeholder="VD: VietGAP, ISO 9001" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Phương Tiện Vận Tải</label>
+            <input type="text" id="addPhuongTien" placeholder="VD: Xe tải thùng kín 5 tấn" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+        </div>
+
+        <!-- Khung xác thực Ví MetaMask -->
+        <div class="p-3 bg-indigo-950/40 rounded-xl border border-indigo-500/30 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <i class="fa-brands fa-ethereum text-indigo-400 text-lg"></i>
+            <div>
+              <div class="font-bold text-white">Xác thực giao dịch bằng ví MetaMask</div>
+              <div class="text-[10px] text-slate-400">Ký số và ghi mã băm bất biến lên Smart Contract</div>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold text-[10px] border border-emerald-500/30">Sẵn Sàng Ký</span>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="dongModal('modalThemMoi')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-xs">
+            Ký Số & Lưu Vào Blockchain
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       MODAL 2: CHỈNH SỬA THÔNG TIN LÔ HÀNG
+       ==================================================================== -->
+  <div id="modalChinhSua" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+    <div class="app-card w-full max-w-xl p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="text-base font-bold flex items-center gap-2 brand-font">
+          <i class="fa-solid fa-pen-to-square text-sky-400"></i> Chỉnh Sửa Thông Tin Lô Hàng
+        </h3>
+        <button onclick="dongModal('modalChinhSua')" class="text-slate-400 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formChinhSua" class="space-y-3.5 text-xs">
+        <input type="hidden" id="editMa">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Tên Sản Phẩm*</label>
+            <input type="text" id="editTen" required class="form-input-custom w-full p-2.5 rounded-lg font-medium">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Ngành Hàng*</label>
+            <select id="editLoai" class="form-input-custom w-full p-2.5 rounded-lg">
+              <option value="Nông sản">Nông sản</option>
+              <option value="Thực phẩm">Thực phẩm</option>
+              <option value="Lương thực">Lương thực</option>
+              <option value="Đặc sản">Đặc sản</option>
+              <option value="Dược liệu">Dược liệu</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Nơi Sản Xuất*</label>
+            <input type="text" id="editNhaSX" required class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Nơi Giao Đến*</label>
+            <input type="text" id="editNoiGiao" required class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Ngày Sản Xuất</label>
+            <input type="date" id="editNgaySX" class="form-input-custom w-full p-2 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Hạn Sử Dụng</label>
+            <input type="date" id="editHanDung" class="form-input-custom w-full p-2 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Số Lượng</label>
+            <input type="text" id="editSoLuong" class="form-input-custom w-full p-2 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Tiêu Chuẩn</label>
+            <input type="text" id="editTieuChuan" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Tiến Độ Chặng (1 - 4)</label>
+            <select id="editBuocHienTai" class="form-input-custom w-full p-2.5 rounded-lg font-bold text-sky-400">
+              <option value="1">Chặng 1: Sản Xuất</option>
+              <option value="2">Chặng 2: Đóng Gói</option>
+              <option value="3">Chặng 3: Đang Vận Chuyển</option>
+              <option value="4">Chặng 4: Đã Hoàn Thành</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="dongModal('modalChinhSua')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-xs">Cập Nhật</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       MODAL 3: CẬP NHẬT NHẬT KÝ KIỂM ĐỊNH CHẶNG (KÝ SỐ BLOCKCHAIN)
+       ==================================================================== -->
+  <div id="modalThemNhatKy" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+    <div class="app-card w-full max-w-lg p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div>
+          <h3 class="text-base font-bold brand-font">Ghi Nhận Nhật Ký & Ký Số Blockchain</h3>
+          <p id="nhatKyMaSP" class="text-xs text-sky-400 font-medium mt-0.5">SP001 - Cà Phê</p>
+        </div>
+        <button onclick="dongModal('modalThemNhatKy')" class="text-slate-400 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formThemNhatKy" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Chọn Chặng Cần Cập Nhật*</label>
+          <select id="nhatKyBuoc" class="form-input-custom w-full p-2.5 rounded-lg font-medium">
+            <option value="1">Chặng 1: Sản Xuất & Sơ Chế</option>
+            <option value="2">Chặng 2: Kiểm Định Chất Lượng & Đóng Gói</option>
+            <option value="3">Chặng 3: Đang Vận Chuyển Phân Phối</option>
+            <option value="4">Chặng 4: Bàn Giao Điểm Đích</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Địa Điểm Kiểm Tra*</label>
+            <input type="text" id="nhatKyDiaDiem" required placeholder="VD: Trạm thu phí Hải Vân" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Người Kiểm Tra / Kỹ Sư*</label>
+            <input type="text" id="nhatKyNguoiPT" required placeholder="VD: Kỹ sư Nguyễn Văn Minh" class="form-input-custom w-full p-2.5 rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Kết Quả Kiểm Định Chất Lượng</label>
+          <input type="text" id="nhatKyKiemDinh" placeholder="VD: ĐẠT CHUẨN NHIỆT ĐỘ 22°C, SEAL NGUYÊN VẸN" class="form-input-custom w-full p-2.5 rounded-lg font-semibold text-emerald-400">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Chi Tiết Ghi Chú / Biên Bản</label>
+          <textarea id="nhatKyChiTiet" rows="3" required placeholder="Ghi nhận tình trạng niêm phong thùng xe, nhiệt độ và các giấy tờ kiểm dịch đi kèm..." class="form-input-custom w-full p-2.5 rounded-lg"></textarea>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="dongModal('modalThemNhatKy')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold">
+            Ký Duyệt Chặng
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       MODAL 4: TEM NHÃN IN ẤN SẢN PHẨM (PRINTABLE LABEL)
+       ==================================================================== -->
+  <div id="modalTemNhan" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+    <div class="app-card w-full max-w-md p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+      <div class="no-print flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="text-base font-bold brand-font">Tem Nhãn Dán Bao Bì Sản Phẩm</h3>
+        <div class="flex items-center gap-2">
+          <button onclick="inPhieu()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold">
+            <i class="fa-solid fa-print mr-1"></i> In Tem
+          </button>
+          <button onclick="dongModal('modalTemNhan')" class="text-slate-400 hover:text-white text-lg p-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Khung Tem Nhãn (In ấn) -->
+      <div class="label-stamp print-area space-y-3 text-xs">
+        <div class="flex items-start justify-between border-b-2 border-slate-800 pb-2">
+          <div>
+            <div class="font-extrabold text-sm text-slate-900 uppercase tracking-tight">TEM TRUY XUẤT NGUỒN GỐC</div>
+            <div class="text-[10px] text-slate-500">HỆ THỐNG ORIGIN TRACKER VIỆT NAM (BLOCKCHAIN VERIFIED)</div>
+          </div>
+          <span id="temMa" class="px-2 py-0.5 bg-slate-900 text-white font-mono font-bold rounded">SP001</span>
+        </div>
+
+        <div class="flex gap-4 items-center">
+          <div class="bg-white p-1 border border-slate-300 rounded shrink-0">
+            <canvas id="temQrCanvas" width="96" height="96"></canvas>
+          </div>
+          <div class="space-y-1">
+            <div id="temTen" class="font-bold text-slate-900 text-sm leading-tight">Cà Phê Robusta Hạt</div>
+            <div class="text-[11px] text-slate-600">Ngành: <span id="temLoai" class="font-medium">Nông sản</span></div>
+            <div class="text-[11px] text-slate-600">Tiêu chuẩn: <span id="temTieuChuan" class="font-semibold text-emerald-700">VietGAP</span></div>
+            <div class="text-[11px] text-slate-600">Quy cách: <span id="temSoLuong" class="font-medium">500 kg</span></div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-2 space-y-0.5 text-[11px] text-slate-600">
+          <div>Cơ sở sản xuất: <span id="temNhaSX" class="font-semibold text-slate-800">Buôn Ma Thuột, Đắk Lắk</span></div>
+          <div class="flex justify-between">
+            <span>Ngày SX: <span id="temNgaySX" class="font-medium">15/09/2026</span></span>
+            <span>HSD: <span id="temHSD" class="font-medium text-rose-600">15/09/2027</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       MODAL 5: PHIẾU CHỨNG NHẬN XUẤT XỨ & CHẤT LƯỢNG (CERTIFICATE)
+       ==================================================================== -->
+  <div id="modalChungNhan" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-white text-slate-800 w-full max-w-2xl p-8 rounded-2xl border-2 border-blue-600 shadow-2xl relative my-6">
+      
+      <div class="no-print flex items-center justify-between pb-3 border-b border-slate-200 mb-6">
+        <span class="text-xs font-bold text-blue-700 uppercase">Chứng nhận xuất xứ chính thức</span>
+        <div class="flex items-center gap-2">
+          <button onclick="inPhieu()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold">
+            <i class="fa-solid fa-print mr-1"></i> In Chứng Nhận
+          </button>
+          <button onclick="dongModal('modalChungNhan')" class="text-slate-400 hover:text-slate-700 text-lg p-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Nội dung Giấy Chứng Nhận -->
+      <div class="print-area space-y-6 text-slate-800">
+        <div class="text-center space-y-1 border-b border-slate-200 pb-4">
+          <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+          <div class="text-xs font-semibold text-slate-600">Độc lập - Tự do - Hạnh phúc</div>
+          <div class="text-xl sm:text-2xl font-extrabold text-blue-900 pt-2 brand-font">
+            GIẤY CHỨNG NHẬN NGUỒN GỐC & KIỂM ĐỊNH LÔ HÀNG
+          </div>
+          <div class="text-xs text-slate-500 uppercase tracking-wider font-mono">CERTIFICATE OF ORIGIN & QUALITY INSPECTION (BLOCKCHAIN VERIFIED)</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <span class="text-slate-500 block mb-0.5">Tên sản phẩm:</span>
+            <span id="certTen" class="font-bold text-slate-900 text-sm">Cà Phê Robusta Hạt</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Mã định danh lô:</span>
+            <span id="certMa" class="font-bold text-blue-600 mono-font text-sm">SP001</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Cơ sở sản xuất:</span>
+            <span id="certNhaSX" class="font-semibold text-slate-800">Nông trường Cà phê Buôn Ma Thuột</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Địa điểm giao đến:</span>
+            <span id="certNoiGiao" class="font-semibold text-slate-800">Kho Tổng VinMart Hà Nội</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Ngày đóng gói:</span>
+            <span id="certNgaySX" class="font-medium text-slate-800">15/09/2026</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Hạn dùng kiểm nghiệm:</span>
+            <span id="certHSD" class="font-medium text-slate-800">15/09/2027</span>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 space-y-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i> XÁC NHẬN CHẤT LƯỢNG ĐẠT CHUẨN LƯU HÀNH
+          </div>
+          <div>Lô hàng đáp ứng các tiêu chuẩn: <span id="certTieuChuan" class="font-bold">VietGAP, ISO 22000</span>. Toàn bộ chặng vận chuyển và bảo quản đều được giám sát và lưu trữ hồ sơ điện tử trên Smart Contract mạng lưới Blockchain.</div>
+        </div>
+
+        <!-- Chữ ký & Dấu con mộc số -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div class="flex items-center gap-3">
+            <div class="bg-white p-1 border border-slate-300 rounded shadow-xs">
+              <canvas id="certQrCanvas" width="80" height="80"></canvas>
+            </div>
+            <div class="text-[11px] text-slate-500 font-mono">
+              <div>Mã số xác thực: #VN-88992</div>
+              <div>Hệ thống SupplyChain Tracker</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 text-center">
+            <div class="cert-seal">
+              ĐÃ KIỂM ĐỊNH<br>QUALITY PASS
+            </div>
+            <div class="text-xs">
+              <div class="text-slate-500 mb-1">Kiểm định viên phụ trách</div>
+              <div id="certKiemDinh" class="font-bold text-slate-900 mt-6 border-b border-slate-400 pb-0.5">Trần Hoàng Nam</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       KHUNG THÔNG BÁO TOAST
+       ==================================================================== -->
+  <div id="toast" class="hidden"></div>
+
+
+  <!-- ====================================================================
+       FOOTER BÁO CÁO ĐỒ ÁN
+       ==================================================================== -->
+  <footer class="app-card border-x-0 border-b-0 rounded-none py-6 mt-12 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 space-y-1.5">
+      <div class="text-slate-500">Công nghệ: HTML5, CSS3, Tailwind CSS, Leaflet Maps, Chart.js, MetaMask Web3, LocalStorage</div>
+    </div>
+  </footer>
+
+  <!-- TẢI CÁC FILE SCRIPT -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
